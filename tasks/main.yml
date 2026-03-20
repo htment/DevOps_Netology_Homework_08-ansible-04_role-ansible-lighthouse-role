@@ -1,0 +1,102 @@
+---
+# tasks file for ansible-lighthouse-role
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install required packages
+  package:
+    name:
+      - git
+      - nginx
+    state: present
+
+- name: Remove default nginx site
+  file:
+    path: "{{ lighthouse_default_nginx_site }}"
+    state: absent
+  when: lighthouse_remove_default_nginx_site
+  notify: reload nginx
+
+- name: Create lighthouse group
+  group:
+    name: "{{ lighthouse_group }}"
+    system: true
+    state: present
+  when: lighthouse_create_group
+
+- name: Create lighthouse user
+  user:
+    name: "{{ lighthouse_user }}"
+    group: "{{ lighthouse_group }}"
+    system: true
+    shell: /sbin/nologin
+    create_home: false
+  when: lighthouse_create_user
+
+- name: Clone lighthouse repository
+  git:
+    repo: "{{ lighthouse_repo_url }}"
+    dest: "{{ lighthouse_install_dir }}"
+    version: "{{ lighthouse_version }}"
+    force: yes
+    depth: 1
+  register: lighthouse_clone
+
+- name: Set ownership of lighthouse directory
+  file:
+    path: "{{ lighthouse_install_dir }}"
+    owner: "{{ lighthouse_user }}"
+    group: "{{ lighthouse_group }}"
+    recurse: yes
+
+- name: Create nginx configuration directory if not exists
+  file:
+    path: /etc/nginx/sites-available
+    state: directory
+    mode: '0755'
+
+- name: Configure nginx for lighthouse
+  template:
+    src: lighthouse.conf.j2
+    dest: "{{ lighthouse_nginx_config }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: lighthouse_nginx_enable
+  notify: restart nginx
+
+- name: Enable nginx site
+  file:
+    src: "{{ lighthouse_nginx_config }}"
+    dest: "{{ lighthouse_nginx_enabled }}"
+    state: link
+  when: lighthouse_nginx_enable
+  notify: reload nginx
+
+- name: Ensure nginx is running
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Check if lighthouse is accessible
+  uri:
+    url: "http://localhost:{{ lighthouse_port }}"
+    status_code: 200
+  register: lighthouse_check
+  until: lighthouse_check.status == 200
+  retries: 5
+  delay: 10
+  ignore_errors: yes
+
+- name: Display access URL
+  debug:
+    msg: |
+      LightHouse is installed and configured.
+      Access URL: http://{{ ansible_default_ipv4.address }}:{{ lighthouse_port }}
+      ClickHouse host: {{ lighthouse_clickhouse_host }}:{{ lighthouse_clickhouse_port }}
+      ClickHouse user: {{ lighthouse_clickhouse_user }}

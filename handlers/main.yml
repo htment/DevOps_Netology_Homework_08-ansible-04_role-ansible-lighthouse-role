@@ -1,0 +1,13 @@
+---
+# handlers file for ansible-lighthouse-role
+---
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+    daemon_reload: true
+
+- name: reload nginx
+  systemd:
+    name: nginx
+    state: reloaded

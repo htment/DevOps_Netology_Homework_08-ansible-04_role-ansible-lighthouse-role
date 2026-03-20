@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: HAV
+  description: Install and configure LightHouse web interface for ClickHouse
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+  galaxy_tags:
+    - lighthouse
+    - clickhouse
+    - web
+    - monitoring
+    - vkcom
+
+dependencies: []

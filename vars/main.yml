@@ -1,0 +1,8 @@
+---
+# vars file for ansible-lighthouse-role
+---
+# Системные переменные
+lighthouse_repo_url: "https://github.com/VKCOM/lighthouse.git"
+lighthouse_nginx_config: /etc/nginx/sites-available/lighthouse
+lighthouse_nginx_enabled: /etc/nginx/sites-enabled/lighthouse
+lighthouse_default_nginx_site: /etc/nginx/sites-enabled/default

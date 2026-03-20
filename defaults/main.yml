@@ -1,0 +1,29 @@
+---
+# defaults file for ansible-lighthouse-role
+---
+# Версия LightHouse (ветка или тег)
+lighthouse_version: "master"
+
+# Пользователь и группа
+lighthouse_user: lighthouse
+lighthouse_group: lighthouse
+lighthouse_create_user: true
+lighthouse_create_group: true
+
+# Пути установки
+lighthouse_install_dir: /opt/lighthouse
+
+# Настройки веб-сервера
+lighthouse_port: 8080
+lighthouse_server_name: _
+lighthouse_nginx_enable: true
+
+# Подключение к ClickHouse
+lighthouse_clickhouse_host: localhost
+lighthouse_clickhouse_port: 8123
+lighthouse_clickhouse_user: default
+lighthouse_clickhouse_password: ""
+
+# Дополнительные настройки
+lighthouse_remove_default_nginx_site: true
+lighthouse_nginx_user: www-data
